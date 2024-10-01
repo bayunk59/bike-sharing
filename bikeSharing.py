@@ -105,49 +105,60 @@ st.subheader("Jumlah Penyewa Sepeda Berdasarkan Jam")
 penyewa_per_jam_holiday = main_df[main_df['holiday'] == "Holiday"].groupby('hr')['cnt'].sum().reset_index()
 penyewa_per_jam_non_holiday = main_df[main_df['holiday'] == "Non-holiday"].groupby('hr')['cnt'].sum().reset_index()
 
-#Menentukan jam paling rame
-# Menentukan jam paling ramai pada hari libur
-jam_rame_holiday = main_df[main_df['holiday'] == "Holiday"].groupby('hr')['cnt'].sum().reset_index()
-jam_teramai_holiday = jam_rame_holiday[jam_rame_holiday['cnt'] == jam_rame_holiday['cnt'].max()]
+#Menentukan jam paling ramai dengan pengecekan data hari libur dan tidak libur
+if not penyewa_per_jam_holiday.empty:
+    jam_teramai_holiday = penyewa_per_jam_holiday[penyewa_per_jam_holiday['cnt'] == penyewa_per_jam_holiday['cnt'].max()]
+else:
+    jam_teramai_holiday = None
 
-# Menentukan jam paling ramai pada hari tidak libur
-jam_rame_non_holiday = main_df[main_df['holiday'] == "Non-holiday"].groupby('hr')['cnt'].sum().reset_index()
-jam_teramai_non_holiday = jam_rame_non_holiday[jam_rame_non_holiday['cnt'] == jam_rame_non_holiday['cnt'].max()]
+if not penyewa_per_jam_non_holiday.empty:
+    jam_teramai_non_holiday = penyewa_per_jam_non_holiday[penyewa_per_jam_non_holiday['cnt'] == penyewa_per_jam_non_holiday['cnt'].max()]
+else:
+    jam_teramai_non_holiday = None
 
 # Menampilkan hasil di dashboard
 st.subheader("Jam Paling Ramai Penyewa Sepeda")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.metric(label="Jam Paling Ramai (Hari Libur)", value=f"{int(jam_teramai_holiday['hr'].values[0])}:00")
-    st.write(f"Jumlah Penyewa: {int(jam_teramai_holiday['cnt'].values[0])}")
+    if jam_teramai_holiday is not None:
+        st.metric(label="Jam Paling Ramai (Hari Libur)", value=f"{int(jam_teramai_holiday['hr'].values[0])}:00")
+        st.write(f"Jumlah Penyewa: {int(jam_teramai_holiday['cnt'].values[0])}")
+    else:
+        st.write("Tidak ada data hari libur yang tersedia.")
 
 with col2:
-    st.metric(label="Jam Paling Ramai (Hari Tidak Libur)", value=f"{int(jam_teramai_non_holiday['hr'].values[0])}:00")
-    st.write(f"Jumlah Penyewa: {int(jam_teramai_non_holiday['cnt'].values[0])}")
-
-# Membuat dua kolom untuk menampilkan grafik secara berdampingan
-col1, col2 = st.columns(2)
+    if jam_teramai_non_holiday is not None:
+        st.metric(label="Jam Paling Ramai (Hari Tidak Libur)", value=f"{int(jam_teramai_non_holiday['hr'].values[0])}:00")
+        st.write(f"Jumlah Penyewa: {int(jam_teramai_non_holiday['cnt'].values[0])}")
+    else:
+        st.write("Tidak ada data hari tidak libur yang tersedia.")
 
 # Membuat dua kolom untuk menampilkan grafik secara berdampingan
 col1, col2 = st.columns(2)
 
 # Visualisasi jumlah penyewa per jam pada hari libur
 with col1:
-    st.write("Jumlah Penyewa Sepeda pada Hari Libur")
-    plt.figure(figsize=(10, 5))
-    sns.lineplot(data=penyewa_per_jam_holiday, x='hr', y='cnt', marker='o', color="blue")
-    plt.title("Jumlah Penyewa Sepeda per Jam (Hari Libur)")
-    plt.xlabel("Jam")
-    plt.ylabel("Jumlah Penyewa")
-    st.pyplot(plt)
+    if not penyewa_per_jam_holiday.empty:
+        st.write("Jumlah Penyewa Sepeda pada Hari Libur")
+        plt.figure(figsize=(10, 5))
+        sns.lineplot(data=penyewa_per_jam_holiday, x='hr', y='cnt', marker='o', color="blue")
+        plt.title("Jumlah Penyewa Sepeda per Jam (Hari Libur)")
+        plt.xlabel("Jam")
+        plt.ylabel("Jumlah Penyewa")
+        st.pyplot(plt)
+    else:
+        st.write("Tidak ada data hari libur yang tersedia.")
 
 # Visualisasi jumlah penyewa per jam pada hari tidak libur
 with col2:
-    st.write("Jumlah Penyewa Sepeda pada Hari Tidak Libur")
-    plt.figure(figsize=(10, 5))
-    sns.lineplot(data=penyewa_per_jam_non_holiday, x='hr', y='cnt', marker='o', color="green")
-    plt.title("Jumlah Penyewa Sepeda per Jam (Hari Tidak Libur)")
-    plt.xlabel("Jam")
-    plt.ylabel("Jumlah Penyewa")
-    st.pyplot(plt)
+    if not penyewa_per_jam_non_holiday.empty:
+        st.write("Jumlah Penyewa Sepeda pada Hari Tidak Libur")
+        plt.figure(figsize=(10, 5))
+        sns.lineplot(data=penyewa_per_jam_non_holiday, x='hr', y='cnt', marker='o', color="green")
+        plt.title("Jumlah Penyewa Sepeda per Jam (Hari Tidak Libur)")
+        plt.xlabel("Jam")
+        plt.ylabel("Jumlah Penyewa")
+        st.pyplot(plt)
+    else:
+        st.write("Tidak ada data hari tidak libur yang tersedia.")
